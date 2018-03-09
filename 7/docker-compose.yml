@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  db:
+    build: ./docker/mariadb
+    restart: always
+    volumes:
+      - $PWD/db:/var/lib/mysql
+      - $PWD/src:/drupal-7.57
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: coin
+      MYSQL_DATABASE: drupal7
+      MYSQL_USER: iremus
+      MYSQL_PASSWORD: coin
+  dbadmin:
+    image: adminer
+    restart: always
+    ports:
+      - 11111:8080
+  webserver:
+    build: ./docker/webserver
+    ports:
+      - 8000:80
+      - 44300:443
+    restart: always
+    volumes:
+      - $PWD/src:/var/www/html
+      - $PWD/log:/var/log
+  drush:
+    image: drush/drush:8
+    volumes:
+      - $PWD/src:/app
+    links:
+      - db:mysql
